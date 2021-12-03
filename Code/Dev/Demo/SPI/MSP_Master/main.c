@@ -1,11 +1,10 @@
-//******************************************************************************
+//************************************************************************************************************************************
 //   MSP430F552x Demo - USCI_A0, SPI 3-Wire Master multiple byte RX/TX
 //
-//   Description: SPI master communicates to SPI slave sending and receiving
-//   3 different messages of different length. SPI master will enter LPM0 mode
-//   while waiting for the messages to be sent/receiving using SPI interrupt.
-//   SPI Master will initially wait for a port interrupt in LPM0 mode before
-//   starting the SPI communication.
+//   Description: SPI master communicates to SPI slave sending and receiving 3 different messages of different length. SPI master will
+//   enter LPM0 mode while waiting for the messages to be sent/receiving using SPI interrupt. SPI Master will initially wait for a
+//   port interrupt in LPM0 mode before starting the SPI communication.
+//
 //   ACLK = NA, MCLK = SMCLK = DCO 16MHz.
 //
 //
@@ -21,20 +20,18 @@
 //                |                 |
 //                |             P2.7|-> Serial Clock Out (UCA0CLK)
 //
-//   Nima Eskandari
 //   Texas Instruments Inc.
 //   April 2017
 //   Built with CCS V7.0
-//******************************************************************************
-
+//************************************************************************************************************************************
 #include <msp430.h> 
 #include <stdint.h>
 #include <stdbool.h>
 
 
-//******************************************************************************
-// Example Commands ************************************************************
-//******************************************************************************
+//************************************************************************************************************************************
+// Example Commands ******************************************************************************************************************
+//************************************************************************************************************************************
 
 #define DUMMY   0xFF
 
@@ -42,31 +39,28 @@
 #define SLAVE_CS_DIR    P2DIR
 #define SLAVE_CS_PIN    BIT0
 
-/* CMD_TYPE_X_SLAVE are example commands the master sends to the slave.
- * The slave will send example SlaveTypeX buffers in response.
+/* CMD_TYPE_X_SLAVE are example commands the master sends to the slave. The slave will send example SlaveTypeX buffers in response.
  *
- * CMD_TYPE_X_MASTER are example commands the master sends to the slave.
- * The slave will initialize itself to receive MasterTypeX example buffers.
+ * CMD_TYPE_X_MASTER are example commands the master sends to the slave. The slave will initialize itself to receive MasterTypeX
+ * example buffers.
  * */
 
-#define CMD_TYPE_0_SLAVE              0
-#define CMD_TYPE_1_SLAVE              1
-#define CMD_TYPE_2_SLAVE              2
+#define CMD_TYPE_0_SLAVE           0
+#define CMD_TYPE_1_SLAVE           1
+#define CMD_TYPE_2_SLAVE           2
 
-#define CMD_TYPE_0_MASTER              3
-#define CMD_TYPE_1_MASTER              4
-#define CMD_TYPE_2_MASTER              5
+#define CMD_TYPE_0_MASTER          3
+#define CMD_TYPE_1_MASTER          4
+#define CMD_TYPE_2_MASTER          5
 
 #define TYPE_0_LENGTH              1
 #define TYPE_1_LENGTH              2
 #define TYPE_2_LENGTH              6
 
-#define MAX_BUFFER_SIZE     20
+#define MAX_BUFFER_SIZE             20
 
-/* MasterTypeX are example buffers initialized in the master, they will be
- * sent by the master to the slave.
- * SlaveTypeX are example buffers initialized in the slave, they will be
- * sent by the slave to the master.
+/* MasterTypeX are example buffers initialized in the master, they will be sent by the master to the slave. SlaveTypeX are example
+ * buffers initialized in the slave, they will be sent by the slave to the master.
  * */
 
 uint8_t MasterType0[TYPE_0_LENGTH] = {0x11};
@@ -78,9 +72,9 @@ uint8_t SlaveType1[TYPE_1_LENGTH] = {0};
 uint8_t SlaveType2[TYPE_2_LENGTH] = {0};
 
 
-//******************************************************************************
-// General SPI State Machine ***************************************************
-//******************************************************************************
+//************************************************************************************************************************************
+// General SPI State Machine *********************************************************************************************************
+//************************************************************************************************************************************
 
 typedef enum SPI_ModeEnum{
     IDLE_MODE,
@@ -97,12 +91,12 @@ SPI_Mode MasterMode = IDLE_MODE;
 /* The Register Address/Command to use*/
 uint8_t TransmitRegAddr = 0;
 
-/* ReceiveBuffer: Buffer used to receive data in the ISR
- * RXByteCtr: Number of bytes left to receive
- * ReceiveIndex: The index of the next byte to be received in ReceiveBuffer
- * TransmitBuffer: Buffer used to transmit data in the ISR
- * TXByteCtr: Number of bytes left to transfer
- * TransmitIndex: The index of the next byte to be transmitted in TransmitBuffer
+/* ReceiveBuffer:   Buffer used to receive data in the ISR
+ * RXByteCtr:       Number of bytes left to receive
+ * ReceiveIndex:    The index of the next byte to be received in ReceiveBuffer
+ * TransmitBuffer:  Buffer used to transmit data in the ISR
+ * TXByteCtr:       Number of bytes left to transfer
+ * TransmitIndex:   The index of the next byte to be transmitted in TransmitBuffer
  * */
 uint8_t ReceiveBuffer[MAX_BUFFER_SIZE] = {0};
 uint8_t RXByteCtr = 0;
@@ -124,8 +118,7 @@ uint8_t TransmitIndex = 0;
  *  */
 SPI_Mode SPI_Master_WriteReg(uint8_t reg_addr, uint8_t *reg_data, uint8_t count);
 
-/* For slave device, read the data specified in slaves reg_addr.
- * The received data is available in ReceiveBuffer
+/* For slave device, read the data specified in slaves reg_addr. The received data is available in ReceiveBuffer
  *
  * reg_addr: The register or command to send to the slave.
  *           Example: CMD_TYPE_0_SLAVE
@@ -162,7 +155,7 @@ SPI_Mode SPI_Master_WriteReg(uint8_t reg_addr, uint8_t *reg_data, uint8_t count)
     SLAVE_CS_OUT &= ~(SLAVE_CS_PIN);
     SendUCA0Data(TransmitRegAddr);
 
-    __bis_SR_register(CPUOFF + GIE);              // Enter LPM0 w/ interrupts
+    __bis_SR_register(CPUOFF + GIE);                                        // Enter LPM0 w/ interrupts
 
     SLAVE_CS_OUT |= SLAVE_CS_PIN;
     return MasterMode;
@@ -180,7 +173,7 @@ SPI_Mode SPI_Master_ReadReg(uint8_t reg_addr, uint8_t count)
     SLAVE_CS_OUT &= ~(SLAVE_CS_PIN);
     SendUCA0Data(TransmitRegAddr);
 
-    __bis_SR_register(CPUOFF + GIE);              // Enter LPM0 w/ interrupts
+    __bis_SR_register(CPUOFF + GIE);                                        // Enter LPM0 w/ interrupts
 
     SLAVE_CS_OUT |= SLAVE_CS_PIN;
     return MasterMode;
@@ -189,31 +182,30 @@ SPI_Mode SPI_Master_ReadReg(uint8_t reg_addr, uint8_t count)
 
 void SendUCA0Data(uint8_t val)
 {
-    while (!(UCA0IFG & UCTXIFG));              // USCI_A0 TX buffer ready?
+    while (!(UCA0IFG & UCTXIFG));                                           // USCI_A0 TX buffer ready?
     UCA0TXBUF = val;
 }
 
 
-//******************************************************************************
-// Device Initialization *******************************************************
-//******************************************************************************
+//************************************************************************************************************************************
+// Device Initialization *************************************************************************************************************
+//************************************************************************************************************************************
 
 void initClockTo16MHz()
 {
-    UCSCTL3 |= SELREF_2;                      // Set DCO FLL reference = REFO
-    UCSCTL4 |= SELA_2;                        // Set ACLK = REFO
-    __bis_SR_register(SCG0);                  // Disable the FLL control loop
-    UCSCTL0 = 0x0000;                         // Set lowest possible DCOx, MODx
-    UCSCTL1 = DCORSEL_5;                      // Select DCO range 16MHz operation
-    UCSCTL2 = FLLD_0 + 487;                   // Set DCO Multiplier for 16MHz
-                                              // (N + 1) * FLLRef = Fdco
-                                              // (487 + 1) * 32768 = 16MHz
-                                              // Set FLL Div = fDCOCLK
-    __bic_SR_register(SCG0);                  // Enable the FLL control loop
+    UCSCTL3 |= SELREF_2;                                                    // Set DCO FLL reference = REFO
+    UCSCTL4 |= SELA_2;                                                      // Set ACLK = REFO
+    __bis_SR_register(SCG0);                                                // Disable the FLL control loop
+    UCSCTL0 = 0x0000;                                                       // Set lowest possible DCOx, MODx
+    UCSCTL1 = DCORSEL_5;                                                    // Select DCO range 16MHz operation
+    UCSCTL2 = FLLD_0 + 487;                                                 // Set DCO Multiplier for 16MHz
+                                                                            // (N + 1) * FLLRef = Fdco
+                                                                            // (487 + 1) * 32768 = 16MHz
+                                                                            // Set FLL Div = fDCOCLK
+    __bic_SR_register(SCG0);                                                // Enable the FLL control loop
 
-    // Worst-case settling time for the DCO when the DCO range bits have been
-    // changed is n x 32 x 32 x f_MCLK / f_FLL_reference. See UCS chapter in 5xx
-    // UG for optimization.
+    // Worst-case settling time for the DCO when the DCO range bits have been changed is n x 32 x 32 x f_MCLK / f_FLL_reference. See
+    // UCS chapter in 5xx UG for optimization.
     // 32 x 32 x 16 MHz / 32,768 Hz = 500000 = MCLK cycles for DCO to settle
     __delay_cycles(500000);//
     // Loop until XT1,XT2 & DCO fault flag is cleared
@@ -227,9 +219,8 @@ void initClockTo16MHz()
 uint16_t setVCoreUp(uint8_t level){
     uint32_t PMMRIE_backup, SVSMHCTL_backup, SVSMLCTL_backup;
 
-    //The code flow for increasing the Vcore has been altered to work around
-    //the erratum FLASH37.
-    //Please refer to the Errata sheet to know if a specific device is affected
+    //The code flow for increasing the Vcore has been altered to work around the erratum FLASH37. Please refer to the Errata sheet
+    //to know if a specific device is affected
     //DO NOT ALTER THIS FUNCTION
 
     //Open PMM registers for write access
@@ -394,86 +385,89 @@ bool increaseVCoreToLevel2()
 void initGPIO()
 {
   //LEDs
-  P1OUT = 0x00;                             // P1 setup for LED & reset output
+  P1OUT = 0x00;                                                             // P1 setup for LED & reset output
   P1DIR |= BIT0 + BIT5;
 
   P4DIR |= BIT7;
   P4OUT &= ~(BIT7);
 
   //SPI Pins
-  P3SEL |= BIT3 + BIT4;                     // P3.3,4 option select
-  P2SEL |= BIT7;                            // P2.7 option select
+  P3SEL |= BIT3 + BIT4;                                                     // P3.3,4 option select
+  P2SEL |= BIT7;                                                            // P2.7 option select
 
   //Button to initiate transfer
-  P1DIR &= ~BIT1;                           // Set P1.1 to inpput direction
-  P1REN |= BIT1;                            // Enable P1.1 internal resistance
-  P1OUT |= BIT1;                            // Set P1.1 as pull-Up resistance
-  P1IES |= BIT1;                            // P1.1 Hi/Lo edge
-  P1IFG &= ~BIT1;                           // P1.1 IFG cleared
-  P1IE |= BIT1;                             // P1.1 interrupt enabled
+  P1DIR &= ~BIT1;                                                           // Set P1.1 to inpput direction
+  P1REN |= BIT1;                                                            // Enable P1.1 internal resistance
+  P1OUT |= BIT1;                                                            // Set P1.1 as pull-Up resistance
+  P1IES |= BIT1;                                                            // P1.1 Hi/Lo edge
+  P1IFG &= ~BIT1;                                                           // P1.1 IFG cleared
+  P1IE |= BIT1;                                                             // P1.1 interrupt enabled
 }
 
 void initSPI()
 {
   //Clock Polarity: The inactive state is high
   //MSB First, 8-bit, Master, 3-pin mode, Synchronous
-  UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**
+  UCA0CTL1 |= UCSWRST;                                                      // **Put state machine in reset**
   UCA0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC;
-  UCA0CTL1 |= UCSSEL_2;                     // SMCLK
-  UCA0BR0 |= 0x20;                          // /2
-  UCA0BR1 = 0;                              //
-  UCA0MCTL = 0;                             // No modulation must be cleared for SPI
-  UCA0CTL1 &= ~UCSWRST;                     // **Initialize USCI state machine**
-  UCA0IE |= UCRXIE;                          // Enable USCI0 RX interrupt
+  UCA0CTL1 |= UCSSEL_2;                                                     // SMCLK
+  UCA0BR0 |= 0x20;                                                          // /2
+  UCA0BR1 = 0;                                                              //
+  UCA0MCTL = 0;                                                             // No modulation must be cleared for SPI
+  UCA0CTL1 &= ~UCSWRST;                                                     // **Initialize USCI state machine**
+  UCA0IE |= UCRXIE;                                                         // Enable USCI0 RX interrupt
 
   SLAVE_CS_DIR |= SLAVE_CS_PIN;
   SLAVE_CS_OUT |= SLAVE_CS_PIN;
 }
 
 
-//******************************************************************************
-// Main ************************************************************************
-// Send and receive three messages containing the example commands *************
-//******************************************************************************
+//************************************************************************************************************************************
+// Main ******************************************************************************************************************************
+// Send and receive three messages containing the example commands *******************************************************************
+//************************************************************************************************************************************
 
 
 int main(void) {
-    WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
+    WDTCTL = WDTPW | WDTHOLD;	                                            // Stop watchdog timer
 
     increaseVCoreToLevel2();
     initClockTo16MHz();
 	initGPIO();
 	initSPI();
 
-	P1OUT &= ~BIT5;                           // Now with SPI signals initialized,
-	__delay_cycles(100000);
-	P1OUT |= BIT5;                            // reset slave
-	__delay_cycles(100000);                   // Wait for slave to initialize
+//	P1OUT &= ~BIT5;                                                         // Now with SPI signals initialized,
+//	__delay_cycles(100000);
+//	P1OUT |= BIT5;                                                          // reset slave
+//	__delay_cycles(100000);                                                 // Wait for slave to initialize
 
-	P1OUT |= BIT0;
-	__bis_SR_register(LPM0_bits + GIE);       // CPU off, enable interrupts
-	SPI_Master_ReadReg(CMD_TYPE_2_SLAVE, TYPE_2_LENGTH);
-	CopyArray(ReceiveBuffer, SlaveType2, TYPE_2_LENGTH);
 
-	SPI_Master_ReadReg(CMD_TYPE_1_SLAVE, TYPE_1_LENGTH);
-	CopyArray(ReceiveBuffer, SlaveType1, TYPE_1_LENGTH);
+	for(;;) {
+        P1OUT ^= BIT0;
+        __bis_SR_register(LPM0_bits + GIE);                                 // CPU off, enable interrupts
+        SPI_Master_ReadReg(CMD_TYPE_2_SLAVE, TYPE_2_LENGTH);
+        CopyArray(ReceiveBuffer, SlaveType2, TYPE_2_LENGTH);
+	}
 
-	SPI_Master_ReadReg(CMD_TYPE_0_SLAVE, TYPE_0_LENGTH);
-	CopyArray(ReceiveBuffer, SlaveType0, TYPE_0_LENGTH);
-
-	SPI_Master_WriteReg(CMD_TYPE_2_MASTER, MasterType2, TYPE_2_LENGTH);
-	SPI_Master_WriteReg(CMD_TYPE_1_MASTER, MasterType1, TYPE_1_LENGTH);
-	SPI_Master_WriteReg(CMD_TYPE_0_MASTER, MasterType0, TYPE_0_LENGTH);
-	__bis_SR_register(LPM0_bits + GIE);
-    __no_operation();
-
-	return 0;
+//	SPI_Master_ReadReg(CMD_TYPE_1_SLAVE, TYPE_1_LENGTH);
+//	CopyArray(ReceiveBuffer, SlaveType1, TYPE_1_LENGTH);
+//
+//	SPI_Master_ReadReg(CMD_TYPE_0_SLAVE, TYPE_0_LENGTH);
+//	CopyArray(ReceiveBuffer, SlaveType0, TYPE_0_LENGTH);
+//
+//	SPI_Master_WriteReg(CMD_TYPE_2_MASTER, MasterType2, TYPE_2_LENGTH);
+//	SPI_Master_WriteReg(CMD_TYPE_1_MASTER, MasterType1, TYPE_1_LENGTH);
+//	SPI_Master_WriteReg(CMD_TYPE_0_MASTER, MasterType0, TYPE_0_LENGTH);
+//	__bis_SR_register(LPM0_bits + GIE);
+//    __no_operation();
+//
+//	return 0;
 }
 
 
-//******************************************************************************
-// SPI Interrupt ***************************************************************
-//******************************************************************************
+//************************************************************************************************************************************
+// SPI Interrupt *********************************************************************************************************************
+//************************************************************************************************************************************
 
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=USCI_A0_VECTOR
@@ -487,22 +481,22 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR (void)
   uint8_t uca0_rx_val = 0;
   switch(__even_in_range(UCA0IV,4))
   {
-    case 0:break;                             // Vector 0 - no interrupt
-    case 2:                                   // Vector 2 - RXIFG
+    case 0:break;                                                           // Vector 0 - no interrupt
+    case 2:                                                                 // Vector 2 - RXIFG
         uca0_rx_val = UCA0RXBUF;
         switch (MasterMode)
         {
             case TX_REG_ADDRESS_MODE:
                 if (RXByteCtr)
                 {
-                    MasterMode = RX_DATA_MODE;   // Need to start receiving now
+                    MasterMode = RX_DATA_MODE;                              // Need to start receiving now
                     //Send Dummy To Start
                     __delay_cycles(2000000);
                     SendUCA0Data(DUMMY);
                 }
                 else
                 {
-                    MasterMode = TX_DATA_MODE;        // Continue to transmision with the data in Transmit Buffer
+                    MasterMode = TX_DATA_MODE;                              // Continue to transmission w/the data in Transmit Buffer
                     //Send First
                     SendUCA0Data(TransmitBuffer[TransmitIndex++]);
                     TXByteCtr--;
@@ -519,7 +513,7 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR (void)
                 {
                   //Done with transmission
                   MasterMode = IDLE_MODE;
-                  __bic_SR_register_on_exit(CPUOFF);      // Exit LPM0
+                  __bic_SR_register_on_exit(CPUOFF);                        // Exit LPM0
                 }
                 break;
 
@@ -533,7 +527,7 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR (void)
                 if (RXByteCtr == 0)
                 {
                     MasterMode = IDLE_MODE;
-                    __bic_SR_register_on_exit(CPUOFF);      // Exit LPM0
+                    __bic_SR_register_on_exit(CPUOFF);                      // Exit LPM0
                 }
                 else
                 {
@@ -547,16 +541,16 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR (void)
         }
         __delay_cycles(1000);
         break;
-    case 4:break;                             // Vector 4 - TXIFG
+    case 4:break;                                                           // Vector 4 - TXIFG
     default: break;
   }
 }
 
 
-//******************************************************************************
-// PORT1 Interrupt *************************************************************
-// Interrupt occurs on button press and initiates the SPI data transfer ********
-//******************************************************************************
+//************************************************************************************************************************************
+// PORT1 Interrupt *******************************************************************************************************************
+// Interrupt occurs on button press and initiates the SPI data transfer **************************************************************
+//************************************************************************************************************************************
 
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=PORT1_VECTOR
@@ -567,8 +561,9 @@ void __attribute__ ((interrupt(PORT1_VECTOR))) Port_1 (void)
 #error Compiler not supported!
 #endif
 {
-  P4OUT ^= BIT7;                            // P1.0 = toggle
-  P1IFG &= ~BIT1;                          // P1.1 IFG cleared
+  P4OUT ^= BIT7;                                                            // P1.0 = toggle
+  P1IFG &= ~BIT1;                                                           // P1.1 IFG cleared
   P1IE &= ~BIT1;
-  __bic_SR_register_on_exit(CPUOFF);      // Exit LPM0
+  __bic_SR_register_on_exit(CPUOFF);                                        // Exit LPM0
 }
+
