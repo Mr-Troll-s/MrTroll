@@ -1,0 +1,54 @@
+@brief 		Troll Portfolio Redo
+@details 	Complete & Deliver
+@auth 		Justin Reina
+@date 		12/25/23
+
+
+@section 	Notes
+	Over the next two years let's complete this troll -
+	
+	• Complete the Portfolio presentation
+	
+	• Build my experience set
+	
+	• Have some fun
+	
+@section 	Method
+	2 hrs daily while unemployed, one hour daily while employed until schedule needs time
+	
+@section 	Form
+	'Prototyping' Tab with stages on left hand side (starts at most recent
+	
+	0 - Brainstorming
+	
+	1 - Research
+	
+	2 - Ideation
+	
+	3 - Planning
+	
+	4 - Concept Development
+	
+	5 - System Design
+	
+	6 - Prototype
+
+	7 - Concept Testing
+
+	8 - MVP
+	
+	9 - Customer Feedback
+	
+	10 - Commercialization?
+	
+	Fun stuff down the side
+
+@section 	Sidebar Form
+
+	Stage Enum
+	
+	Projects
+	
+	Shop
+	
+	Prints
