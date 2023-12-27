@@ -52,3 +52,35 @@
 	Shop
 	
 	Prints
+
+@section 	Dev Opens
+	Integrate to Portfolio.zip
+	
+	Complete Troll!
+	
+	Complete integration to website for portfolio present
+
+@section 	Demo Contents
+	
+	Embedded C++
+	
+	Python
+	
+	Multi-core
+	
+	Zephyr RTOS
+	
+	AUTOSAR
+	
+	Database
+	
+	Web Interface
+	
+	Bluetooth
+	
+	WiFi
+	
+	LoRa?
+	
+	FPGA
+
